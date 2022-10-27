@@ -21,17 +21,25 @@ jobs:
         with:
           node-version: '16.x'
 
-      - name: npm install, build, and test
+      - name: npm install, build
         run: |
+          cd server
           npm install
+          cd ..
+          npm install --force
           npm run build --if-present
-          npm run test --if-present
       
-      - name: Upload artifact for deployment job
+      - name: Upload node-js for deployment job
         uses: actions/upload-artifact@v2
         with:
-          name: node-app
-          path: .
+          name: node-js
+          path: server
+          
+      - name: Upload react for deployment job
+        uses: actions/upload-artifact@v2
+        with:
+          name: react-js
+          path: client/build
 
   deploy:
     runs-on: ubuntu-latest
@@ -44,7 +52,12 @@ jobs:
       - name: Download artifact from build job
         uses: actions/download-artifact@v2
         with:
-          name: node-app
+          name: node-js
+          
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v2
+        with:
+          name: react-js
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
